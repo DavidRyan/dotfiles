@@ -106,10 +106,14 @@ require("lazy").setup({
         { "williamboman/mason.nvim" },
         { "github/copilot.vim" },
         { "nvim-lualine/lualine.nvim" },
-        { "github/copilot.vim" },
         { "nvim-lua/plenary.nvim" },
         { "CopilotC-Nvim/CopilotChat.nvim" },
         { "EdenEast/nightfox.nvim" },
+        {
+            "catppuccin/nvim",
+            name = "catppuccin",
+            priority = 1000
+        },
         { "ibhagwan/fzf-lua" },
         { "m4xshen/autoclose.nvim" },
         { "neovim/nvim-lspconfig" },
@@ -125,7 +129,25 @@ require("lazy").setup({
 
 })
 
-vim.cmd("colorscheme nightfox")
+vim.keymap.set("n", "<leader>cc", function()
+  vim.cmd("CopilotChat")
+  vim.cmd("vertical resize -40")
+end)
+
+
+require("catppuccin").setup({
+  flavour = "mocha", -- latte, frappe, macchiato, mocha
+  transparent_background = true, -- ✅ enable transparency
+  integrations = {
+    nvimtree = true,
+    treesitter = true,
+    telescope = true,
+    -- add more as needed
+  },
+})
+
+vim.cmd.colorscheme "catppuccin-mocha"
+--vim.cmd("colorscheme nightfox")
 
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all" (the listed parsers MUST always be installed)
