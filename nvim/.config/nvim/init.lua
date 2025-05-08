@@ -125,15 +125,59 @@ require("lazy").setup({
         { "hrsh7th/cmp-nvim-lsp" },
         { "nvim-lua/popup.nvim" },
         { "nvim-treesitter/nvim-treesitter" },
-    }
+        {
+            'nvim-telescope/telescope.nvim',
+            tag = '0.1.2',
+            dependencies = { 'nvim-lua/plenary.nvim' },
+            config = function()
+                require('telescope').setup{
+                    defaults = {
+                        mappings = {
+                            i = {
+                                ["<C-u>"] = false, -- Disable Ctrl+u in insert mode
+                                ["<C-d>"] = false, -- Disable Ctrl+d in insert mode
+                            },
+                        },
+                    }
+                }
+            end
+        },
+        {
+            'nvim-telescope/telescope-fzf-native.nvim',
+            build = 'make',
+            config = function()
+                require('telescope').load_extension('fzf')
+            end
+        },
+        {
+            "folke/which-key.nvim",
+            config = function()
+                require("which-key").setup({})
+            end,
+        },
+        {
+            "brenoprata10/nvim-highlight-colors",
+            config = function()
+                require("nvim-highlight-colors").setup {
+                    render = 'background', -- Options: 'background', 'foreground', 'first_column'
+                    enable_named_colors = true,
+                    enable_tailwind = false,
+                }
+            end,
+        }
+    }})
 
-})
+vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>fh', '<cmd>Telescope help_tags<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>s', '<cmd>Telescope lsp_workspace_symbols<CR>', { noremap = true, silent = true })
+
 
 vim.keymap.set("n", "<leader>cc", function()
   vim.cmd("CopilotChat")
   vim.cmd("vertical resize -40")
 end)
-
 
 require("catppuccin").setup({
   flavour = "mocha", -- latte, frappe, macchiato, mocha
