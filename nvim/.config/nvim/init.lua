@@ -15,6 +15,16 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = "LSP Hover (type info)" })
+
+
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+  vim.lsp.handlers.hover,
+  {
+    border = "rounded",
+    max_width = 80,
+  }
+)
 
 -- randon config
 vim.g.mapleader = " "
@@ -164,7 +174,34 @@ require("lazy").setup({
                     enable_tailwind = false,
                 }
             end,
-        }
+        },
+        {
+            "folke/noice.nvim",
+            event = "VeryLazy",
+            dependencies = {
+                "MunifTanjim/nui.nvim",
+                "rcarriga/nvim-notify",
+            },
+            config = function()
+                require("noice").setup({
+                    lsp = {
+                        hover = {
+                            enabled = true,
+                        },
+                        signature = {
+                            enabled = true,
+                        },
+                    },
+                    presets = {
+                        bottom_search = true,
+                        command_palette = true,
+                        long_message_to_split = true,
+                        inc_rename = false,
+                        lsp_doc_border = true,
+                    },
+                })
+            end
+        },
     }})
 
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
@@ -183,11 +220,10 @@ require("catppuccin").setup({
   flavour = "mocha", -- latte, frappe, macchiato, mocha
   transparent_background = true, -- ✅ enable transparency
   integrations = {
-    nvimtree = true,
+    nvimtree = true, 
     treesitter = true,
     telescope = true,
-    -- add more as needed
-  },
+    },
 })
 
 vim.cmd.colorscheme "catppuccin-mocha"
