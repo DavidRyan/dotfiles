@@ -45,3 +45,4 @@ working-directory = /home/david/
 theme = catppuccin-mocha
 font-family = JetBrainsMono Nerd Font
 
+background-opacity = 0.9

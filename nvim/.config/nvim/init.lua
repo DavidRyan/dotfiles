@@ -49,6 +49,8 @@ vim.keymap.set("n", "[g", vim.diagnostic.goto_prev)
 vim.opt.scrolloff = 5
 vim.o.termguicolors = true
 vim.o.relativenumber = true
+vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
 
 -- Set completeopt to have a better completion experience
 -- :help completeopt
@@ -255,6 +257,21 @@ require("lazy").setup({
                 lang = "kotlin"
             },
         }
+        },
+        {
+            "goolord/alpha-nvim",
+            -- dependencies = { 'echasnovski/mini.icons' },
+            dependencies = { 'nvim-tree/nvim-web-devicons' },
+            config = function()
+                local startify = require("alpha.themes.startify")
+                -- available: devicons, mini, default is mini
+                -- if provider not loaded and enabled is true, it will try to use another provider
+                startify.file_icons.provider = "devicons"
+                require("alpha").setup(
+                    startify.config
+                )
+            end,
+        },
     }})
 
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
