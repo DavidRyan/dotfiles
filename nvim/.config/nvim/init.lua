@@ -113,7 +113,47 @@ require("lazy").setup({
                 },
             },
         },
-        { "williamboman/mason.nvim" },
+        {
+            "williamboman/mason-lspconfig.nvim",
+            dependencies = {
+                "williamboman/mason.nvim",
+                "neovim/nvim-lspconfig",
+                "hrsh7th/cmp-nvim-lsp",
+            },
+            lazy = false,
+            config = function()
+                print("🔧 Setting up mason-lspconfig")
+
+                require("mason").setup()
+
+                local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+                require("mason-lspconfig").setup({
+                    automatic_installation = false, -- no longer needed, but safe to leave false
+                    automatic_enable = true, -- ✅ new setting
+                })
+
+                -- Custom LSP configuration
+                local lspconfig = require("lspconfig")
+
+                lspconfig.kotlin_language_server.setup({
+                    cmd = {
+                        vim.fn.stdpath("data") .. "/mason/packages/kotlin-language-server/server/bin/kotlin-language-server",
+                    },
+                    capabilities = capabilities,
+                    init_options = {
+                        storagePath = vim.fn.stdpath("cache") .. "/kotlin-language-server-workspace",
+                    },
+                    root_dir = function(fname)
+                        local dir = require("lspconfig.util").path.dirname(fname)
+                        vim.notify("📁 Kotlin root_dir = " .. dir)
+                        return dir
+                    end,
+                })
+            end,
+        }
+        ,
+
         { "github/copilot.vim" },
         { "nvim-lualine/lualine.nvim" },
         { "nvim-lua/plenary.nvim" },
@@ -130,7 +170,6 @@ require("lazy").setup({
         { "j-hui/fidget.nvim" },
         { "hrsh7th/nvim-cmp" },
         { "lewis6991/gitsigns.nvim" },
-        { "williamboman/mason-lspconfig.nvim" },
         { "hrsh7th/nvim-cmp" },
         { "hrsh7th/cmp-nvim-lsp" },
         { "nvim-lua/popup.nvim" },
@@ -202,6 +241,20 @@ require("lazy").setup({
                 })
             end
         },
+        { "nvim-tree/nvim-web-devicons", lazy = true },
+        {
+            "kawre/leetcode.nvim",
+            build = ":TSUpdate html", -- if you have `nvim-treesitter` installed
+            dependencies = {
+                "nvim-telescope/telescope.nvim",
+                -- "ibhagwan/fzf-lua",
+                "nvim-lua/plenary.nvim",
+                "MunifTanjim/nui.nvim",
+            },
+            opts = {
+                lang = "kotlin"
+            },
+        }
     }})
 
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
@@ -231,7 +284,7 @@ vim.cmd.colorscheme "catppuccin-mocha"
 
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all" (the listed parsers MUST always be installed)
-  ensure_installed = "go", -- Or specify a list of languages
+  ensure_installed = {"go", "html"}, -- Or specify a list of languages
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -252,7 +305,6 @@ require'nvim-treesitter.configs'.setup {
 }
 
 
-require("mason").setup()
 require("fidget").setup()
 require("gitsigns").setup()
 require("autoclose").setup()
@@ -260,22 +312,15 @@ require('lualine').setup()
 require("CopilotChat").setup {}
 require('nightfox').setup()
 require("fzf-lua").setup()
-require("lazy").setup({})
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
-require('mason-lspconfig').setup({
-    handlers = {
-        function(server_name)
-            require("lspconfig")[server_name].setup({
-                capabilities = capabilities,
-            })			
-        end,
-    }
-  }
-)
 
 
 
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*.kt",
+  callback = function()
+    vim.notify("Entered Kotlin file: " .. vim.fn.expand("%:p"))
+  end,
+})
 
 ---- below is CMP and LSP setup
 ---

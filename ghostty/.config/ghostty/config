@@ -43,4 +43,5 @@
 # resize-overlay-duration = 4s 200ms
 working-directory = /home/david/
 theme = catppuccin-mocha
+font-family = JetBrainsMono Nerd Font
 
