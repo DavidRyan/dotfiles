@@ -135,26 +135,9 @@ require("lazy").setup({
                     automatic_enable = true, -- ✅ new setting
                 })
 
-                -- Custom LSP configuration
-                local lspconfig = require("lspconfig")
 
-                lspconfig.kotlin_language_server.setup({
-                    cmd = {
-                        vim.fn.stdpath("data") .. "/mason/packages/kotlin-language-server/server/bin/kotlin-language-server",
-                    },
-                    capabilities = capabilities,
-                    init_options = {
-                        storagePath = vim.fn.stdpath("cache") .. "/kotlin-language-server-workspace",
-                    },
-                    root_dir = function(fname)
-                        local dir = require("lspconfig.util").path.dirname(fname)
-                        vim.notify("📁 Kotlin root_dir = " .. dir)
-                        return dir
-                    end,
-                })
             end,
-        }
-        ,
+        },
 
         { "github/copilot.vim" },
         { "nvim-lualine/lualine.nvim" },
@@ -256,7 +239,6 @@ require("lazy").setup({
             opts = {
                 lang = "kotlin"
             },
-        }
         },
         {
             "goolord/alpha-nvim",
@@ -272,7 +254,17 @@ require("lazy").setup({
                 )
             end,
         },
-    })
+        { "onsails/lspkind.nvim" },
+    }})
+
+local lspconfig = require("lspconfig")
+
+lspconfig.kotlin_language_server.setup({
+  cmd = { vim.fn.stdpath("data") .. "/mason/packages/kotlin-lsp/kotlin-lsp", "--stdio" },
+  filetypes = { "kotlin" },
+  root_dir = lspconfig.util.root_pattern("settings.gradle", "settings.gradle.kts", ".git"),
+})
+
 
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', { noremap = true, silent = true })
@@ -290,9 +282,28 @@ require("catppuccin").setup({
   flavour = "mocha", -- latte, frappe, macchiato, mocha
   transparent_background = true, -- ✅ enable transparency
   integrations = {
+    cmp = true,
     nvimtree = true, 
     treesitter = true,
     telescope = true,
+    },
+    highlight_overrides = {
+        mocha = function(colors)
+            return {
+                -- Core popup styling
+                CmpPmenu = { bg = colors.base, fg = colors.text },
+                CmpPmenuSel = { bg = colors.surface1, fg = colors.text },
+                CmpPmenuBorder = { bg = colors.base },
+                CmpPmenuSbar = { bg = colors.surface0 },
+                CmpPmenuThumb = { bg = colors.surface2 },
+
+                -- Optional: item styling
+                CmpItemAbbr = { fg = colors.text },
+                CmpItemAbbrMatch = { fg = colors.peach, bold = true },
+                CmpItemKind = { fg = colors.blue },
+                CmpItemMenu = { fg = colors.subtext0 },
+            }
+        end,
     },
 })
 
@@ -343,6 +354,8 @@ vim.api.nvim_create_autocmd("BufEnter", {
 ---
 -- Setup Completion
 -- See https://github.com/hrsh7th/nvim-cmp#basic-configuration
+--
+local lspkind = require("lspkind")
 local cmp = require("cmp")
 cmp.setup({
     preselect = cmp.PreselectMode.None,
@@ -350,6 +363,17 @@ cmp.setup({
         expand = function(args)
             vim.fn["vsnip#anonymous"](args.body)
         end,
+    },
+    formatting = {
+        format = lspkind.cmp_format({
+            mode = "symbol_text",
+            maxwidth = 50,
+            ellipsis_char = "…",
+        }),
+    },
+    window = {
+        completion = cmp.config.window.bordered(),
+        documentation = cmp.config.window.bordered(),
     },
     mapping = {
         ["<C-p>"] = cmp.mapping.select_prev_item(),
@@ -374,6 +398,10 @@ cmp.setup({
         { name = "path" },
         { name = "buffer" },
     },
+})
+
+require("notify").setup({
+  background_colour = "#000000",
 })
 
 vim.opt.signcolumn = 'yes'
