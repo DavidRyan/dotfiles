@@ -257,6 +257,14 @@ require("lazy").setup({
         }
     }})
 
+require("notify").setup {
+  background_colour = "#0000004D",
+  stages = "fade_in_slide_out",
+  timeout = 3000,
+  max_width = 80,
+  max_height = 20,
+}
+
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<CR>', { noremap = true, silent = true })
@@ -321,6 +329,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
     vim.notify("Entered Kotlin file: " .. vim.fn.expand("%:p"))
   end,
 })
+
 
 ---- below is CMP and LSP setup
 ---
@@ -400,3 +409,13 @@ cmp.setup({
     },
     mapping = cmp.mapping.preset.insert({}),
 })
+
+
+vim.api.nvim_create_user_command("StartKotlinLsp", function()
+  vim.lsp.start({
+    name = "kotlin_language_server",
+    cmd = { "kotlin-language-server" },
+    root_dir = require("lspconfig.util").root_pattern("settings.gradle", "build.gradle.kts", "build.gradle", ".git")(vim.api.nvim_buf_get_name(0)) or vim.fn.getcwd(),
+    filetypes = { "kotlin" },
+  })
+end, {})
