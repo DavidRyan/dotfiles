@@ -39,11 +39,6 @@ vim.keymap.set("n", "<C-]>", "<C-i>", { desc = "Jump Forward" })
 vim.keymap.set("n", "<leader>[", "echo i", { desc = "Jump Forward" })
 -- Backward (jump to the previous location)
 vim.keymap.set("n", "<C-[>", "<C-o>", { desc = "Jump Backward" })
-vim.keymap.set('i', '<C-J>', 'copilot#Accept("\\<CR>")', {
-    expr = true,
-    replace_keycodes = false
-})
-vim.g.copilot_no_tab_map = true
 vim.keymap.set("n", "]g", vim.diagnostic.goto_next)
 vim.keymap.set("n", "[g", vim.diagnostic.goto_prev)
 vim.opt.scrolloff = 5
@@ -139,7 +134,6 @@ require("lazy").setup({
             end,
         },
 
-        { "github/copilot.vim" },
         { "nvim-lualine/lualine.nvim" },
         { "nvim-lua/plenary.nvim" },
         { "CopilotC-Nvim/CopilotChat.nvim" },
@@ -255,7 +249,34 @@ require("lazy").setup({
             end,
         },
         { "onsails/lspkind.nvim" },
+        {
+            "supermaven-inc/supermaven-nvim",
+            config = function()
+                require("supermaven-nvim").setup({})
+            end,
+        }
+        ,
     }})
+
+
+    require("supermaven-nvim").setup({
+        keymaps = {
+            accept_suggestion = "<Tab>",
+            clear_suggestion = "<C-]>",
+            accept_word = "<C-j>",
+        },
+        ignore_filetypes = { cpp = true }, -- or { "cpp", }
+        color = {
+            suggestion_color = "#ffffff",
+            cterm = 244,
+        },
+        log_level = "info", -- set to "off" to disable logging completely
+        disable_inline_completion = false, -- disables inline completion for use with cmp
+        disable_keymaps = false, -- disables built in keymaps for more manual control
+        condition = function()
+            return false
+        end -- condition to check for stopping supermaven, `true` means to stop supermaven when the condition is true.
+    })
 
 local lspconfig = require("lspconfig")
 
@@ -393,6 +414,7 @@ cmp.setup({
 
     -- Installed sources
     sources = {
+        { name = "supermaven"},
         { name = "nvim_lsp" },
         { name = "vsnip" },
         { name = "path" },

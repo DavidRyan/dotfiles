@@ -46,4 +46,3 @@ theme = catppuccin-mocha
 font-family = JetBrainsMono Nerd Font
 
 background-opacity = 0.9
-keybind = shift+enter=text:\n
