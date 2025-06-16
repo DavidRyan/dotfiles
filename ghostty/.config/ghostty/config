@@ -41,9 +41,16 @@
 # # which is explained in the docs for that config option.
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
+# resize-overlay-duration = 4s 200ms
 working-directory = /home/david/
 theme = catppuccin-mocha
-font-family = JetBrainsMono Nerd Font
 
-background-opacity = 0.9
-keybind = shift+enter=text:\n
+# Use the bold font as your base font
+font-family = JetBrainsMono Nerd Font Bold
+font-style-bold = true
+font-style-italic = true
+
+background-opacity = 0.97
+
+# Optional: If you want to stop Ghostty from faking bold/italic styles
+font-synthetic-style = false

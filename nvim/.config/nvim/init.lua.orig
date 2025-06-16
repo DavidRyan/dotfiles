@@ -39,11 +39,18 @@ vim.keymap.set("n", "<C-]>", "<C-i>", { desc = "Jump Forward" })
 vim.keymap.set("n", "<leader>[", "echo i", { desc = "Jump Forward" })
 -- Backward (jump to the previous location)
 vim.keymap.set("n", "<C-[>", "<C-o>", { desc = "Jump Backward" })
+vim.keymap.set('i', '<C-J>', 'copilot#Accept("\\<CR>")', {
+    expr = true,
+    replace_keycodes = false
+})
+vim.g.copilot_no_tab_map = true
 vim.keymap.set("n", "]g", vim.diagnostic.goto_next)
 vim.keymap.set("n", "[g", vim.diagnostic.goto_prev)
 vim.opt.scrolloff = 5
 vim.o.termguicolors = true
 vim.o.relativenumber = true
+vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
 
 -- Set completeopt to have a better completion experience
 -- :help completeopt
@@ -128,27 +135,11 @@ require("lazy").setup({
                     automatic_enable = true, -- ✅ new setting
                 })
 
-                -- Custom LSP configuration
-                local lspconfig = require("lspconfig")
 
-                lspconfig.kotlin_language_server.setup({
-                    cmd = {
-                        vim.fn.stdpath("data") .. "/mason/packages/kotlin-language-server/server/bin/kotlin-language-server",
-                    },
-                    capabilities = capabilities,
-                    init_options = {
-                        storagePath = vim.fn.stdpath("cache") .. "/kotlin-language-server-workspace",
-                    },
-                    root_dir = function(fname)
-                        local dir = require("lspconfig.util").path.dirname(fname)
-                        vim.notify("📁 Kotlin root_dir = " .. dir)
-                        return dir
-                    end,
-                })
             end,
-        }
-        ,
+        },
 
+        { "github/copilot.vim" },
         { "nvim-lualine/lualine.nvim" },
         { "nvim-lua/plenary.nvim" },
         { "CopilotC-Nvim/CopilotChat.nvim" },
@@ -250,8 +241,8 @@ require("lazy").setup({
             },
         },
         {
-             "goolord/alpha-nvim",
-             -- dependencies = { 'echasnovski/mini.icons' },
+            "goolord/alpha-nvim",
+            -- dependencies = { 'echasnovski/mini.icons' },
             dependencies = { 'nvim-tree/nvim-web-devicons' },
             config = function()
                 local startify = require("alpha.themes.startify")
@@ -264,35 +255,17 @@ require("lazy").setup({
             end,
         },
         { "onsails/lspkind.nvim" },
-        {
-            "supermaven-inc/supermaven-nvim",
-            config = function()
-                require("supermaven-nvim").setup({})
-            end,
-        }
-        ,
     }})
 
-
-    require("supermaven-nvim").setup({
-        keymaps = {
-            accept_suggestion = "<Tab>",
-            clear_suggestion = "<C-]>",
-            accept_word = "<C-j>",
-        },
-        ignore_filetypes = { cpp = true }, -- or { "cpp", }
-        color = {
-            suggestion_color = "#ffffff",
-            cterm = 244,
-        },
-        log_level = "info", -- set to "off" to disable logging completely
-        disable_inline_completion = false, -- disables inline completion for use with cmp
-        disable_keymaps = false, -- disables built in keymaps for more manual control
-        condition = function()
-            return false
-        end -- condition to check for stopping supermaven, `true` means to stop supermaven when the condition is true.
-    })
-
+<<<<<<< HEAD
+require("notify").setup {
+  background_colour = "#0000004D",
+  stages = "fade_in_slide_out",
+  timeout = 3000,
+  max_width = 80,
+  max_height = 20,
+}
+=======
 local lspconfig = require("lspconfig")
 
 lspconfig.kotlin_language_server.setup({
@@ -301,6 +274,7 @@ lspconfig.kotlin_language_server.setup({
   root_dir = lspconfig.util.root_pattern("settings.gradle", "settings.gradle.kts", ".git"),
 })
 
+>>>>>>> 85d0cdd687b301830f9456b4497ca37fb9dffe1c
 
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', { noremap = true, silent = true })
@@ -314,18 +288,14 @@ vim.keymap.set("n", "<leader>cc", function()
   vim.cmd("vertical resize -40")
 end)
 
-require("notify").setup({
-  background_colour = "#000000",
-})
-
 require("catppuccin").setup({
   flavour = "mocha", -- latte, frappe, macchiato, mocha
   transparent_background = true, -- ✅ enable transparency
   integrations = {
+    cmp = true,
     nvimtree = true, 
     treesitter = true,
     telescope = true,
-    cmp = true
     },
     highlight_overrides = {
         mocha = function(colors)
@@ -342,11 +312,9 @@ require("catppuccin").setup({
                 CmpItemAbbrMatch = { fg = colors.peach, bold = true },
                 CmpItemKind = { fg = colors.blue },
                 CmpItemMenu = { fg = colors.subtext0 },
-                CursorLine = { bg = "#3c3836" }, -- Change the background color of the cursor line CursorLineNr = { fg = "#ebdbb2", bold = true }, -- Change the foreground color of the cursor line number
-                NormalFloat = { bg = "#282828" }, -- Change the background color of floating windows
             }
         end,
-    }
+    },
 })
 
 vim.cmd.colorscheme "catppuccin-mocha"
@@ -392,12 +360,14 @@ vim.api.nvim_create_autocmd("BufEnter", {
   end,
 })
 
+
 ---- below is CMP and LSP setup
 ---
 -- Setup Completion
 -- See https://github.com/hrsh7th/nvim-cmp#basic-configuration
-local cmp = require("cmp")
+--
 local lspkind = require("lspkind")
+local cmp = require("cmp")
 cmp.setup({
     preselect = cmp.PreselectMode.None,
     snippet = {
@@ -434,12 +404,15 @@ cmp.setup({
 
     -- Installed sources
     sources = {
-        { name = "supermaven"},
         { name = "nvim_lsp" },
         { name = "vsnip" },
         { name = "path" },
         { name = "buffer" },
     },
+})
+
+require("notify").setup({
+  background_colour = "#000000",
 })
 
 vim.opt.signcolumn = 'yes'
@@ -483,3 +456,13 @@ cmp.setup({
     },
     mapping = cmp.mapping.preset.insert({}),
 })
+
+
+vim.api.nvim_create_user_command("StartKotlinLsp", function()
+  vim.lsp.start({
+    name = "kotlin_language_server",
+    cmd = { "kotlin-language-server" },
+    root_dir = require("lspconfig.util").root_pattern("settings.gradle", "build.gradle.kts", "build.gradle", ".git")(vim.api.nvim_buf_get_name(0)) or vim.fn.getcwd(),
+    filetypes = { "kotlin" },
+  })
+end, {})
