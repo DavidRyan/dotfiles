@@ -1,4 +1,10 @@
 -- Bootstrap lazy.nvim
+-- disable netrw at the very start of your init.lua
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- optionally enable 24-bit colour
+vim.opt.termguicolors = true
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
     local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -30,6 +36,7 @@ vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 vim.api.nvim_set_keymap("n", "<CR>", "<Nop>", { noremap = true })
+vim.keymap.set('n', '<leader>w', '<C-w>w', { noremap = true })
 ---vim.g.mapleader=" "
 vim.keymap.set("n", "<leader>a", function() print "hi" end)
 vim.keymap.set("n", "<Esc>", "")
@@ -131,6 +138,12 @@ require("lazy").setup({
                 -- Custom LSP configuration
                 local lspconfig = require("lspconfig")
 
+                -- Configure ElixirLS explicitly
+                lspconfig.elixirls.setup({
+                    cmd = { vim.fn.stdpath("data") .. "/mason/bin/elixir-ls" },
+                    capabilities = capabilities,
+                })
+
                 lspconfig.kotlin_language_server.setup({
                     cmd = {
                         vim.fn.stdpath("data") .. "/mason/packages/kotlin-language-server/server/bin/kotlin-language-server",
@@ -168,6 +181,7 @@ require("lazy").setup({
         { "hrsh7th/cmp-nvim-lsp" },
         { "nvim-lua/popup.nvim" },
         { "nvim-treesitter/nvim-treesitter" },
+        { "nvim-tree/nvim-tree.lua" },
         {
             'nvim-telescope/telescope.nvim',
             tag = '0.1.2',
@@ -302,6 +316,7 @@ lspconfig.kotlin_language_server.setup({
 })
 
 
+vim.keymap.set('n', '<leader>gr', '<cmd>Telescope lsp_references<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<CR>', { noremap = true, silent = true })
@@ -375,6 +390,8 @@ require'nvim-treesitter.configs'.setup {
 }
 
 
+require("nvim-tree").setup()
+vim.keymap.set('n', '<leader>t', '<cmd>NvimTreeToggle<CR>', { noremap = true, silent = true })
 require("fidget").setup()
 require("gitsigns").setup()
 require("autoclose").setup()

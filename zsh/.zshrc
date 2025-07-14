@@ -161,7 +161,8 @@ source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 export TERM="xterm-256color"
 
 
-export OPENAI_API_KEY='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'
+export OPENAI_API_KEY='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'
 export DISCORD_TOKEN='MTM1NDkxMjE3MzU0NTIzMDM3Nw.G30Tiu.M3Q9NDuCpC0R-325HSEQ6xBV47NtsXZx62EP_s'
 
 export PATH="$HOME/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
