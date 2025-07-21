@@ -54,4 +54,3 @@ background-opacity = 0.97
 
 # Optional: If you want to stop Ghostty from faking bold/italic styles
 font-synthetic-style = false
-keybind = shift+enter=text:\n
