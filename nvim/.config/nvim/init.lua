@@ -154,7 +154,6 @@ require("lazy").setup({
                     },
                     root_dir = function(fname)
                         local dir = require("lspconfig.util").path.dirname(fname)
-                        vim.notify("📁 Kotlin root_dir = " .. dir)
                         return dir
                     end,
                 })
@@ -227,7 +226,7 @@ require("lazy").setup({
             event = "VeryLazy",
             dependencies = {
                 "MunifTanjim/nui.nvim",
-                "rcarriga/nvim-notify",
+                --"rcarriga/nvim-notify",
             },
             config = function()
                 require("noice").setup({
@@ -283,10 +282,22 @@ require("lazy").setup({
             config = function()
                 require("supermaven-nvim").setup({})
             end,
+        },
+        {
+            'stevearc/oil.nvim',
+            ---@module 'oil'
+            ---@type oil.SetupOpts
+            opts = {},
+            -- Optional dependencies
+            dependencies = { { "echasnovski/mini.icons", opts = {} } },
+            -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+            -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+            lazy = false,
         }
-        ,
     }})
 
+    require("oil").setup()
+    vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
     require("supermaven-nvim").setup({
         keymaps = {
@@ -329,9 +340,9 @@ vim.keymap.set("n", "<leader>cc", function()
   vim.cmd("vertical resize -40")
 end)
 
-require("notify").setup({
-  background_colour = "#000000",
-})
+-- require("notify").setup({
+  -- background_colour = "#000000",
+-- })
 
 require("catppuccin").setup({
   flavour = "mocha", -- latte, frappe, macchiato, mocha
@@ -405,7 +416,6 @@ require("fzf-lua").setup()
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*.kt",
   callback = function()
-    vim.notify("Entered Kotlin file: " .. vim.fn.expand("%:p"))
   end,
 })
 
