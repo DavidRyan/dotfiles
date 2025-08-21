@@ -194,10 +194,16 @@ require("lazy").setup({
                                 ["<C-d>"] = false, -- Disable Ctrl+d in insert mode
                             },
                         },
-                    }
+                    },
+                    pickers = {
+                        lsp_references = {
+                            previewer = true,
+                        },
+                    },
                 }
-            end
-        },
+            end,
+        }
+        ,
         {
             'nvim-telescope/telescope-fzf-native.nvim',
             build = 'make',
