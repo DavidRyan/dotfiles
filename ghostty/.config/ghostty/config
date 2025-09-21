@@ -47,6 +47,7 @@ theme = catppuccin-mocha
 
 # Use the bold font as your base font
 font-family = JetBrainsMono Nerd Font Bold
+font-size = 16
 font-style-bold = true
 font-style-italic = true
 
