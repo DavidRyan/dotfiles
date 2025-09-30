@@ -21,6 +21,9 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = "LSP Hover (type info)" })
+
+
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   vim.lsp.handlers.hover,
   {
@@ -32,8 +35,9 @@ vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
 -- randon config
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
-vim.keymap.set("n", "<CR>", "<Nop>", { noremap = true })
+vim.api.nvim_set_keymap("n", "<CR>", "<Nop>", { noremap = true })
 vim.keymap.set('n', '<leader>w', '<C-w>w', { noremap = true })
+---vim.g.mapleader=" "
 vim.keymap.set("n", "<leader>a", function() print "hi" end)
 vim.keymap.set("n", "<Esc>", "")
 -- Forward (jump to the next location)
@@ -45,6 +49,7 @@ vim.keymap.set("n", "<C-[>", "<C-o>", { desc = "Jump Backward" })
 vim.keymap.set("n", "]g", vim.diagnostic.goto_next)
 vim.keymap.set("n", "[g", vim.diagnostic.goto_prev)
 vim.opt.scrolloff = 5
+vim.o.termguicolors = true
 vim.o.relativenumber = true
 
 -- Set completeopt to have a better completion experience
@@ -59,10 +64,13 @@ vim.cmd("set tabstop=4")
 vim.cmd("set shiftwidth=4")       
 vim.cmd("set softtabstop=4")       
 vim.cmd("set expandtab")       
-vim.keymap.set("n", "<C-p>", "<cmd>Telescope find_files<CR>", { noremap = true, silent = true, desc = "Find files" })
-vim.keymap.set("n", "<C-\\>", "<cmd>Telescope buffers<CR>", { noremap = true, silent = true, desc = "Find buffers" })
-vim.keymap.set("n", "<C-l>", "<cmd>Telescope live_grep<CR>", { noremap = true, silent = true, desc = "Live grep" })
-vim.keymap.set("n", "<F1>", "<cmd>Telescope help_tags<CR>", { noremap = true, silent = true, desc = "Help tags" })
+vim.api.nvim_set_keymap("n", "<C-\\>", [[<Cmd>lua require"fzf-lua".buffers()<CR>]], {})
+vim.api.nvim_set_keymap("n", "<C-k>", [[<Cmd>lua require"fzf-lua".builtin()<CR>]], {})
+vim.api.nvim_set_keymap("n", "<C-p>", [[<Cmd>lua require"fzf-lua".files()<CR>]], {})
+vim.api.nvim_set_keymap("n", "<C-l>", [[<Cmd>lua require"fzf-lua".live_grep_glob()<CR>]], {})
+vim.api.nvim_set_keymap("n", "<C-g>", [[<Cmd>lua require"fzf-lua".grep_project()<CR>]], {})
+vim.api.nvim_set_keymap("n", "<F1>", [[<Cmd>lua require"fzf-lua".help_tags()<CR>]], {})
+--vim.cmd([[colorscheme nightfox]])
 
 
 
@@ -135,19 +143,12 @@ require("lazy").setup({
                     cmd = { vim.fn.stdpath("data") .. "/mason/bin/elixir-ls" },
                     capabilities = capabilities,
                 })
+                local util = require("lspconfig.util")  -- <<< THIS fixes the 'util' nil error
+                vim.lsp.enable('kotlin_lsp')
 
-                lspconfig.kotlin_language_server.setup({
-                    cmd = {
-                        vim.fn.stdpath("data") .. "/mason/packages/kotlin-language-server/server/bin/kotlin-language-server",
-                    },
-                    capabilities = capabilities,
-                    init_options = {
-                        storagePath = vim.fn.stdpath("cache") .. "/kotlin-language-server-workspace",
-                    },
-                    root_dir = function(fname)
-                        local dir = require("lspconfig.util").path.dirname(fname)
-                        return dir
-                    end,
+                -- configure its options
+                vim.lsp.config('kotlin_lsp', {
+                    single_file_support = false,
                 })
             end,
         }
@@ -162,10 +163,13 @@ require("lazy").setup({
             name = "catppuccin",
             priority = 1000
         },
+        { "ibhagwan/fzf-lua" },
         { "m4xshen/autoclose.nvim" },
+        { "neovim/nvim-lspconfig" },
         { "j-hui/fidget.nvim" },
         { "hrsh7th/nvim-cmp" },
         { "lewis6991/gitsigns.nvim" },
+        { "hrsh7th/nvim-cmp" },
         { "hrsh7th/cmp-nvim-lsp" },
         { "nvim-lua/popup.nvim" },
         { "nvim-treesitter/nvim-treesitter" },
@@ -179,8 +183,8 @@ require("lazy").setup({
                     defaults = {
                         mappings = {
                             i = {
-                                ["<C-u>"] = false,
-                                ["<C-d>"] = false,
+                                ["<C-u>"] = false, -- Disable Ctrl+u in insert mode
+                                ["<C-d>"] = false, -- Disable Ctrl+d in insert mode
                             },
                         },
                     },
@@ -191,7 +195,8 @@ require("lazy").setup({
                     },
                 }
             end,
-        },
+        }
+        ,
         {
             'nvim-telescope/telescope-fzf-native.nvim',
             build = 'make',
@@ -290,7 +295,8 @@ require("lazy").setup({
         }
     }})
 
-vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+    require("oil").setup()
+    vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
     require("supermaven-nvim").setup({
         keymaps = {
@@ -311,10 +317,9 @@ vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
         end -- condition to check for stopping supermaven, `true` means to stop supermaven when the condition is true.
     })
 
-
-
-
+local lspconfig = require("lspconfig")
 vim.keymap.set('n', '<leader>gr', '<cmd>Telescope lsp_references<CR>', { noremap = true, silent = true })
+
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<CR>', { noremap = true, silent = true })
@@ -363,6 +368,7 @@ require("catppuccin").setup({
 })
 
 vim.cmd.colorscheme "catppuccin-mocha"
+--vim.cmd("colorscheme nightfox")
 
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all" (the listed parsers MUST always be installed)
@@ -395,6 +401,7 @@ require("autoclose").setup()
 require('lualine').setup()
 require("CopilotChat").setup {}
 require('nightfox').setup()
+require("fzf-lua").setup()
 
 
 
@@ -483,4 +490,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 
-
+cmp.setup({
+    sources = {
+        {name = 'nvim_lsp'},
+    },
+    snippet = {
+        expand = function(args)
+            -- You need Neovim v0.10 to use vim.snippet
+            vim.snippet.expand(args.body)
+        end,
+    },
+    mapping = cmp.mapping.preset.insert({}),
+})
