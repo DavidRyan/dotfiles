@@ -166,7 +166,7 @@ export DISCORD_TOKEN='MTM1NDkxMjE3MzU0NTIzMDM3Nw.G30Tiu.M3Q9NDuCpC0R-325HSEQ6xBV
 
 export PATH="$HOME/bin:$PATH"
 export PATH="/opt/homebrew/bin:$PATH"
-
+export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 
 # Alais
 alias vim='nvim'
