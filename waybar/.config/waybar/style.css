@@ -8,13 +8,13 @@
 }
 
 #waybar {
-  background-color: rgba(24, 24, 37, 0);
+  background-color: rgba(30, 30, 46, 0);
   transition-property: background-color;
   transition-duration: 0.5s;
 }
 
 #workspaces{
-  background-color: rgba( 64, 74, 96, 1.0);
+  background-color: #313244;
   border-radius: 4px;
   padding: 0px 3px;
   border: none;
@@ -32,15 +32,15 @@
   padding-left: 10px;
   margin: 6px 3px;
   border-radius: 40px;
-  background-color: #898fa2;
-  color: #D8DEE9;
+  background-color: #45475a;
+  color: #cdd6f4;
   transition: 100ms;
   font-size: 13px;
 }
 #workspaces button.active {
   transition: 100ms;
-  color: #404A60;
-  background-color: #cdd6f4;
+  color: #1e1e2e;
+  background-color: #89b4fa;
   padding-left: 26px;
   padding-left: 26px;
 }
@@ -48,7 +48,7 @@
   box-shadow: inherit;
   text-shadow: inherit;
   color: #1e1e2e;
-  background-color: #cdd6f4;
+  background-color: #89b4fa;
 }
 
 #mpris,
@@ -77,24 +77,24 @@
   margin: 6px 3px;
   padding: 6px 12px;
   border-radius: 6px;
-  background-color: #404A60;
-  color: #D8DEE9;
+  background-color: #313244;
+  color: #cdd6f4;
   transition: 200ms; border-width: 0px;
 }
 #cava{
   font-size: 16px;
-  background-color: #404A60;
-  color: #D8DEE9;
+  background-color: #313244;
+  color: #cdd6f4;
   transition: 200ms;
 }
 #cava:hover{
-  background-color: #D8DEE9;
-  color: #404A60;
+  background-color: #45475a;
+  color: #cdd6f4;
   transition: 200ms;
 }
 #mpris{
-  background-color: #404A60;
-  color: #D8DEE9;
+  background-color: #313244;
+  color: #cdd6f4;
   transition: 200ms;
   font-size: 14px;
   font-weight: bold;
@@ -102,13 +102,13 @@
   padding-bottom: 6px;
 }
 #mpris:hover{
-  background-color: #D8DEE9;
-  color: #404A60;
+  background-color: #45475a;
+  color: #cdd6f4;
   transition: 200ms;
 }
 #tray:hover{
-  background-color: #D8DEE9;
-  color: #404A60;
+  background-color: #45475a;
+  color: #cdd6f4;
   transition: 200ms;
 }
 #clock{
@@ -134,19 +134,19 @@
   background-color: #89dceb;
 }
 #backlight{
-  background-color: #a6a3a1;
+  background-color: #f5c2e7;
 }
 #memory{
-  background-color: #FF9F81;
+  background-color: #fab387;
 }
 #cpu{
- background-color: #FF7B87;
+ background-color: #f38ba8;
 }
 #network{
-  background-color: #A3BE8C;
+  background-color: #a6e3a1;
 }
 #custom-notification{
-  background-color: #DDC062;
+  background-color: #f9e2af;
   padding-left: 7px;
   padding-right: 13px;
   padding-bottom: 0px;
@@ -161,20 +161,20 @@
 #network:hover,
 #custom-power:hover,
 #custom-notification:hover{
-  background-color: #404A60;
-  color: #D8DEE9;
+  background-color: #45475a;
+  color: #cdd6f4;
   transition: 300ms;
 }
 
 tooltip {
-  border: 1px solid #98DEF2;
+  border: 1px solid #89b4fa;
   border-radius: 4px;
   padding: 1px;
-  background-color: #404A60;
-  color: #fff;
+  background-color: #313244;
+  color: #cdd6f4;
 }
 tooltip label {
   border-radius: 4px;
   padding: 1px;
-  color: #fff;
+  color: #cdd6f4;
 }
