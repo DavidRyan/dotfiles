@@ -1,5 +1,5 @@
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+ZSH_THEME="catppuccin-mocha"
 export COLORTERM=truecolor
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#555555'
