@@ -21,18 +21,21 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Set the hover handler with updated API
+vim.api.nvim_set_hl(0, "LspHover", { bg = "#2d3149" })
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   vim.lsp.handlers.hover,
   {
     border = "rounded",
     max_width = 80,
+    silent = true,
   }
 )
 
 -- randon config
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
-vim.keymap.set("n", "<CR>", "<Nop>", { noremap = true })
+--vim.keymap.set("n", "<CR>", "<Nop>", { noremap = true })
 vim.keymap.set('n', '<leader>w', '<C-w>w', { noremap = true })
 vim.keymap.set("n", "<leader>a", function() print "hi" end)
 vim.keymap.set("n", "<Esc>", "")
@@ -45,6 +48,7 @@ vim.keymap.set("n", "<C-[>", "<C-o>", { desc = "Jump Backward" })
 vim.keymap.set("n", "]g", vim.diagnostic.goto_next)
 vim.keymap.set("n", "[g", vim.diagnostic.goto_prev)
 vim.opt.scrolloff = 5
+vim.o.number = true
 vim.o.relativenumber = true
 
 -- Set completeopt to have a better completion experience
@@ -120,34 +124,80 @@ require("lazy").setup({
 
                 require("mason").setup()
 
+                -- Define common on_attach function for consistent keybindings
+                local on_attach = function(client, bufnr)
+                    -- Enable completion triggered by <c-x><c-o>
+                    vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+                    -- Buffer local mappings
+                    local opts = { buffer = bufnr, noremap = true, silent = true }
+                    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+                    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+                    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+                    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+                    vim.keymap.set('n', 'go', vim.lsp.buf.type_definition, opts)
+                    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+                    vim.keymap.set('n', 'gs', vim.lsp.buf.signature_help, opts)
+                    vim.keymap.set('n', '<F2>', vim.lsp.buf.rename, opts)
+                    vim.keymap.set({'n', 'x'}, '<F3>', function() vim.lsp.buf.format({async = true}) end, opts)
+                    vim.keymap.set('n', '<F4>', vim.lsp.buf.code_action, opts)
+                    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, { buffer = bufnr, desc = "LSP Code Action" })
+                end
+
+                -- Setup capabilities
                 local capabilities = require("cmp_nvim_lsp").default_capabilities()
+                
+                -- Setup diagnostics configuration
+                vim.diagnostic.config({
+                    virtual_text = {
+                        prefix = "●", -- Customize the prefix symbol
+                        spacing = 2,  -- Adjust spacing
+                    },
+                    signs = true,
+                    underline = true,
+                    update_in_insert = false,
+                    severity_sort = true,
+                })
 
+                -- Configure mason-lspconfig
                 require("mason-lspconfig").setup({
-                    automatic_installation = false, -- no longer needed, but safe to leave false
-                    automatic_enable = true, -- ✅ new setting
-                })
-
-                -- Custom LSP configuration
-                local lspconfig = require("lspconfig")
-
-                -- Configure ElixirLS explicitly
-                lspconfig.elixirls.setup({
-                    cmd = { vim.fn.stdpath("data") .. "/mason/bin/elixir-ls" },
-                    capabilities = capabilities,
-                })
-
-                lspconfig.kotlin_language_server.setup({
-                    cmd = {
-                        vim.fn.stdpath("data") .. "/mason/packages/kotlin-language-server/server/bin/kotlin-language-server",
+                    ensure_installed = { "lua_ls", "rust_analyzer" },
+                    handlers = {
+                        -- Default handler
+                        function(server_name)
+                            require("lspconfig")[server_name].setup({
+                                on_attach = on_attach,
+                                capabilities = capabilities,
+                            })
+                        end,
+                        
+                        -- Special handler for Elixir
+                        ["elixirls"] = function()
+                            require("lspconfig").elixirls.setup({
+                                cmd = { vim.fn.stdpath("data") .. "/mason/bin/elixir-ls" },
+                                on_attach = on_attach,
+                                capabilities = capabilities,
+                            })
+                        end,
+                        
+                        -- Special handler for Kotlin
+                        ["kotlin_language_server"] = function()
+                            require("lspconfig").kotlin_language_server.setup({
+                                cmd = {
+                                    vim.fn.stdpath("data") .. "/mason/packages/kotlin-language-server/server/bin/kotlin-language-server",
+                                },
+                                on_attach = on_attach,
+                                capabilities = capabilities,
+                                init_options = {
+                                    storagePath = vim.fn.stdpath("cache") .. "/kotlin-language-server-workspace",
+                                },
+                                root_dir = function(fname)
+                                    return require("lspconfig.util").find_git_ancestor(fname) or 
+                                           require("lspconfig.util").path.dirname(fname)
+                                end,
+                            })
+                        end,
                     },
-                    capabilities = capabilities,
-                    init_options = {
-                        storagePath = vim.fn.stdpath("cache") .. "/kotlin-language-server-workspace",
-                    },
-                    root_dir = function(fname)
-                        local dir = require("lspconfig.util").path.dirname(fname)
-                        return dir
-                    end,
                 })
             end,
         }
@@ -165,6 +215,8 @@ require("lazy").setup({
         { "m4xshen/autoclose.nvim" },
         { "j-hui/fidget.nvim" },
         { "hrsh7th/nvim-cmp" },
+        { "hrsh7th/vim-vsnip" },
+        { "hrsh7th/cmp-vsnip" },
         { "lewis6991/gitsigns.nvim" },
         { "hrsh7th/cmp-nvim-lsp" },
         { "nvim-lua/popup.nvim" },
@@ -272,10 +324,7 @@ require("lazy").setup({
         },
         { "onsails/lspkind.nvim" },
         {
-            "supermaven-inc/supermaven-nvim",
-            config = function()
-                require("supermaven-nvim").setup({})
-            end,
+            "supermaven-inc/supermaven-nvim"
         },
         {
             'stevearc/oil.nvim',
@@ -292,29 +341,27 @@ require("lazy").setup({
 
 vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
-    require("supermaven-nvim").setup({
-        keymaps = {
-            accept_suggestion = "<Tab>",
-            clear_suggestion = "<C-]>",
-            accept_word = "<C-j>",
-        },
-        ignore_filetypes = { cpp = true }, -- or { "cpp", }
-        color = {
-            suggestion_color = "#ffffff",
-            cterm = 244,
-        },
-        log_level = "info", -- set to "off" to disable logging completely
-        disable_inline_completion = false, -- disables inline completion for use with cmp
-        disable_keymaps = false, -- disables built in keymaps for more manual control
-        condition = function()
-            return false
-        end -- condition to check for stopping supermaven, `true` means to stop supermaven when the condition is true.
-    })
+require("supermaven-nvim").setup({
+    keymaps = {
+        clear_suggestion = "<C-]>",
+        accept_word = "<C-j>",
+        accept_suggestion = "<C-k>",
+    },
+    ignore_filetypes = { cpp = true },
+    log_level = "info",
+    disable_inline_completion = false,
+    disable_keymaps = false,
+    condition = function()
+        return false
+    end
+})
+
 
 
 
 
 vim.keymap.set('n', '<leader>gr', '<cmd>Telescope lsp_references<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>gd', vim.lsp.buf.definition, { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<CR>', { noremap = true, silent = true })
@@ -332,34 +379,46 @@ end)
 -- })
 
 require("catppuccin").setup({
-  flavour = "mocha", -- latte, frappe, macchiato, mocha
-  transparent_background = true, -- ✅ enable transparency
+  flavour = "mocha",
+  transparent_background = true,
   integrations = {
-    nvimtree = true, 
+    nvimtree = true,
     treesitter = true,
     telescope = true,
-    cmp = true
-    },
-    highlight_overrides = {
-        mocha = function(colors)
-            return {
-                -- Core popup styling
-                CmpPmenu = { bg = colors.base, fg = colors.text },
-                CmpPmenuSel = { bg = colors.surface1, fg = colors.text },
-                CmpPmenuBorder = { bg = colors.base },
-                CmpPmenuSbar = { bg = colors.surface0 },
-                CmpPmenuThumb = { bg = colors.surface2 },
+    cmp = true,
+  },
+  highlight_overrides = {
+    mocha = function(colors)
+      return {
+        -- === Cmp ===
+        CmpPmenu = { bg = colors.base, fg = colors.text },
+        CmpPmenuSel = { bg = colors.surface1, fg = colors.text },
+        CmpPmenuBorder = { bg = colors.base, fg = colors.surface2 },
+        CmpPmenuSbar = { bg = colors.surface0 },
+        CmpPmenuThumb = { bg = colors.surface2 },
+        CmpItemAbbr = { fg = colors.text },
+        CmpItemAbbrMatch = { fg = colors.peach, bold = true },
+        CmpItemKind = { fg = colors.blue },
+        CmpItemMenu = { fg = colors.subtext0 },
 
-                -- Optional: item styling
-                CmpItemAbbr = { fg = colors.text },
-                CmpItemAbbrMatch = { fg = colors.peach, bold = true },
-                CmpItemKind = { fg = colors.blue },
-                CmpItemMenu = { fg = colors.subtext0 },
-                CursorLine = { bg = "#3c3836" }, -- Change the background color of the cursor line CursorLineNr = { fg = "#ebdbb2", bold = true }, -- Change the foreground color of the cursor line number
-                NormalFloat = { bg = "#282828" }, -- Change the background color of floating windows
-            }
-        end,
-    }
+        -- === Floating windows ===
+        NormalFloat = { bg = colors.mantle },
+        --FloatBorder = { bg = colors.mantle, fg = colors.surface2 },
+        CursorLine = { bg = colors.surface0 },
+        CursorLineNr = { fg = colors.peach, bold = true },
+
+        -- === Telescope ===
+        TelescopeNormal        = { bg = "NONE" },
+        --TelescopeBorder        = { bg = colors.mantle, fg = colors.blue },
+        TelescopePromptNormal  = { bg = "NONE" },
+        --TelescopePromptBorder  = { bg = colors.crust, fg = colors.blue },
+        TelescopeResultsNormal = { bg = "NONE" },
+        --TelescopeResultsBorder = { bg = colors.mantle, fg = colors.surface2 },
+        TelescopePreviewNormal = { bg = "NONE" },
+        --TelescopePreviewBorder = { bg = colors.mantle, fg = colors.surface2 },
+      }
+    end,
+  },
 })
 
 vim.cmd.colorscheme "catppuccin-mocha"
@@ -454,33 +513,8 @@ cmp.setup({
     },
 })
 
+-- Enable sign column for displaying diagnostics
 vim.opt.signcolumn = 'yes'
-vim.api.nvim_create_autocmd('LspAttach', {
-    desc = 'LSP actions',
-    callback = function(event)
-        local opts = {buffer = event.buf}
-
-        vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-        vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-        vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-        vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-        vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-        vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-        vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-        vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-        vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-        vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
-        vim.diagnostic.config({
-            virtual_text = {
-                prefix = "●", -- Customize the prefix symbol (e.g., ●, ■, ▶)
-                spacing = 2,  -- Adjust spacing between the diagnostic and the code
-            },
-            signs = true,       -- Enable signs in the gutter
-            underline = true,   -- Underline the problematic code
-            update_in_insert = false, -- Update diagnostics in insert mode
-            severity_sort = true, -- Sort diagnostics by severity
-        })
-    end,
-})
 
 
+vim.keymap.set('n', '<leader>gd', vim.lsp.buf.definition, { noremap = true, silent = true })

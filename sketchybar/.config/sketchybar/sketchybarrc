@@ -16,6 +16,8 @@ sketchybar --bar height=30 \
 	margin=12:5:12:5 \
 	blur_radius=20 \
 	notch_width=200 \
+	border_width=1 \
+	border_color="$BLUE" \
 	--default updates=when_shown \
 	icon.font="$FONT:Bold:13.5" \
 	icon.color="$ICON_COLOR" \
@@ -33,9 +35,44 @@ sketchybar --bar height=30 \
 	popup.background.color="$POPUP_BACKGROUND_COLOR" \
 	popup.background.shadow.drawing="$SHADOW"
 
-# Left
- source "$ITEM_DIR/apple.sh"
-source "$ITEM_DIR/spaces.sh"
+# Add event for Aerospace workspace changes
+sketchybar --add event aerospace_workspace_change
+sketchybar --enable-hidpi
+
+# Add Aerospace workspaces (only 1-6)
+sketchybar --add bracket spaces right_bracket
+for sid in {1..6}; do
+    sketchybar --add item space.$sid left \
+        --subscribe space.$sid aerospace_workspace_change \
+        --set space.$sid \
+        background.color="$BAR_COLOR" \
+        background.corner_radius="$CORNER_RADIUS" \
+        background.border_width="$BORDER_WIDTH" \
+        background.border_color="$RED" \
+        background.height=24 \
+        background.drawing=off \
+        background.padding_left=-2 \
+        background.padding_right=-2 \
+        label="$sid" \
+        label.padding_left=10 \
+        label.padding_right=10 \
+        icon.drawing=off \
+        click_script="aerospace workspace $sid" \
+        script="$HOME/.config/sketchybar/plugins/aerospace.sh $sid"
+    
+    # Add to the workspace bracket
+    sketchybar --add space.$sid to spaces
+done
+
+# Add spacer
+sketchybar --add item spacer.1 left \
+    --set spacer.1 background.drawing=off \
+    label.drawing=off \
+    icon.drawing=off \
+    width=10
+
+# Left items
+source "$ITEM_DIR/apple.sh"
 source "$ITEM_DIR/front_app.sh"
 
 # Center (of notch)
@@ -48,10 +85,8 @@ source "$ITEM_DIR/battery.sh"
 source "$ITEM_DIR/volume.sh"
 source "$ITEM_DIR/cpu.sh"
 
-#################### Finalizing Setup ####################
-
+# Finalize setup
 sketchybar --hotload true
-
 sketchybar --update
 
 echo "sketchybar configuration loaded.."
