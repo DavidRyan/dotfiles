@@ -5,6 +5,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+source /opt/homebrew/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+
 # Timothy's zsh configuration file.
 #
 # Checkout into ~/.zsh
@@ -171,3 +173,5 @@ export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 # Alais
 alias vim='nvim'
 alias nivm='nvim'
+export PATH="$PATH:/Users/dryan/Library/Android/sdk/platform-tools"
+export PATH="$HOME/.local/bin:$PATH"
