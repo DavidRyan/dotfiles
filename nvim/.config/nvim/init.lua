@@ -120,8 +120,6 @@ require("lazy").setup({
             },
             lazy = false,
             config = function()
-                print("🔧 Setting up mason-lspconfig")
-
                 require("mason").setup()
 
                 -- Define common on_attach function for consistent keybindings
@@ -308,7 +306,27 @@ require("lazy").setup({
         },
         { "onsails/lspkind.nvim" },
         {
-            "supermaven-inc/supermaven-nvim"
+            "supermaven-inc/supermaven-nvim",
+            config = function()
+                require("supermaven-nvim").setup({
+                    keymaps = {
+                        accept_suggestion = "<Tab>",
+                        clear_suggestion = "<C-]>",
+                        accept_word = "<C-j>",
+                    },
+                    ignore_filetypes = { cpp = true },
+                    color = {
+                        suggestion_color = "#ffffff",
+                        cterm = 244,
+                    },
+                    log_level = "info",
+                    disable_inline_completion = false,
+                    disable_keymaps = false,
+                    condition = function()
+                        return false
+                    end
+                })
+            end,
         },
         {
             'stevearc/oil.nvim',
@@ -389,6 +407,10 @@ require("lazy").setup({
     }})
 
 vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+    require("oil").setup()
+    vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+
+local lspconfig = require("lspconfig")
 
 require("supermaven-nvim").setup({
     keymaps = {

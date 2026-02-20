@@ -44,6 +44,7 @@
 # resize-overlay-duration = 4s 200ms
 working-directory = /home/david/
 config-file = themes/catpuccine.conf
+theme = catppuccin-mocha
 
 # Use the bold font as your base font
 font-family = JetBrainsMono Nerd Font Bold
@@ -60,3 +61,4 @@ window-decoration = true
 #background-opacity = 0.94
 #window-blur = true
 
+keybind = shift+enter=text:\n
