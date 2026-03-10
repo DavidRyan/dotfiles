@@ -175,3 +175,4 @@ alias vim='nvim'
 alias nivm='nvim'
 export PATH="$PATH:/Users/dryan/Library/Android/sdk/platform-tools"
 export PATH="$HOME/.local/bin:$PATH"
+eval "$(zoxide init zsh)"
