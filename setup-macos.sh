@@ -18,6 +18,7 @@ MACOS_PACKAGES=(
     nvim
     sketchybar
     zsh
+    zoxide
 )
 
 # Packages that exist in the repo but are Linux-only
